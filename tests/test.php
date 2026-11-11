@@ -1,4 +1,5 @@
 <?php
+// Developed by https://xarop.com
 // Uso: php tests/test.php
 $api = __DIR__ . '/../api.php';
 $data = json_decode(file_get_contents(__DIR__ . '/../dataset.json'), true);
@@ -51,6 +52,18 @@ $fechas = array_column(array_filter($data, function ($l) {
 }), 'fecha_nov');
 rsort($fechas);
 comprobar('ordenados por fecha_nov desc', [$ult[0]['fecha_nov'], $ult[1]['fecha_nov']] === [$fechas[0], $fechas[1]]);
+
+// Registros duplicados del mismo libro
+[$r] = llamar($api, 'Topito terremoto');
+$topito = array_filter($r['libros'], function ($l) {
+    return $l['isbn'] === '9788448847906';
+});
+comprobar('no repite un libro con distintas portadas', count($topito) === 1 && count($r['libros']) === 3);
+[$r] = llamar($api, 'Nueve días de abril');
+comprobar('conserva la fecha más reciente del libro duplicado', count($r['libros']) === 1 && $r['libros'][0]['fecha_nov'] === '20170511');
+[$r] = llamar($api, 'Rosa Montero');
+$isbns = array_column($r['autores'][0]['ultimos_libros'], 'isbn');
+comprobar('no repite libros en los últimos libros del autor', count($isbns) === 2 && count(array_unique($isbns)) === 2);
 
 // Autor con espacios sobrantes en el dataset
 [$r] = llamar($api, 'Osho');

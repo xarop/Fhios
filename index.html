@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- Developed by https://xarop.com -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -11,6 +12,7 @@ button{padding:.5rem 1rem}
 .libro{display:flex;gap:1rem;margin:.5rem 0;padding:.5rem;border:1px solid #ddd}
 .libro img{width:60px}
 pre{background:#f4f4f4;padding:1rem;overflow:auto;max-height:300px}
+footer{margin-top:2rem}
 </style>
 </head>
 <body>
@@ -24,6 +26,7 @@ pre{background:#f4f4f4;padding:1rem;overflow:auto;max-height:300px}
 <div id="res"></div>
 <h3>JSON</h3>
 <pre id="json"></pre>
+<footer>Developed by <a href="https://xarop.com" target="_blank" rel="noopener noreferrer">xarop.com</a></footer>
 <script>
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const libro = l => `<div class="libro"><img src="${esc(l.portada)}" alt=""><div><b>${esc(l.titulo)}</b><br>${esc(l.autor)}<br>ISBN ${esc(l.isbn)} · ${esc(l.fecha_nov)}</div></div>`;

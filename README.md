@@ -1,4 +1,6 @@
 # Prueba técnica – Buscador de libros y autores
+[![Developer](https://img.shields.io/badge/developer-xarop.com-blue?logo=)](https://xarop.com)
+
 
 Resolución del ejercicio planteado en `enunciado.docx` sobre los datos de `dataset.json`.
 
@@ -36,6 +38,18 @@ El servidor necesita **PHP** (la API y `index.php` se ejecutan en el servidor).
 php -S localhost:8000
 ```
 
+En macOS, si utilizas Local y no tienes PHP en el `PATH`, puedes usar el PHP
+incluido en la aplicación. Desde el directorio del proyecto:
+
+```bash
+export PATH="/Applications/Local.app/Contents/Resources/extraResources/lightning-services/php-8.2.29+0/bin/darwin/bin:$PATH"
+php -S localhost:8000
+```
+
+La versión y la ruta pueden variar según la instalación de Local. La variable
+`PATH` se modifica solo para la terminal actual; también permite ejecutar los
+tests indicados más abajo en esa misma terminal.
+
 ---
 
 ## 1. Resolución estricta del enunciado
@@ -57,7 +71,27 @@ Decisiones de interpretación:
 - `libros` contiene los libros cuyo **título** coincide; `autores`, los autores cuyo **nombre** coincide.
 - Si el texto tiene varias palabras, todas deben aparecer en el campo (`Jorge Franco` → autor Jorge Franco).
 - El dataset trae espacios sobrantes en algunos autores (`" Osho"`); se normalizan con `trim`.
+- Los registros con el mismo ISBN, título y autor se consideran el mismo libro; si hay varias fechas se conserva la más reciente. Los libros diferentes que comparten ISBN se mantienen.
 - Mayúsculas/minúsculas no influyen; las tildes sí (`Paraiso` ≠ `Paraíso`).
+
+### Duplicados y calidad de los datos
+
+El dataset contiene registros del mismo libro con distintas portadas o fechas.
+Por ejemplo, *Topito terremoto* aparece dos veces con el ISBN `9788448847906`;
+*Nueve días de abril* también aparece dos veces con fechas diferentes. El
+`dataset.json` entregado se mantiene sin modificar. Al procesarlo en memoria,
+para evitar resultados repetidos, se agrupan los registros con el mismo ISBN,
+título y autor, conservando el de fecha más reciente (o el primero si las
+fechas coinciden). Esto también se aplica antes de seleccionar los dos últimos
+libros de cada autor.
+
+El ISBN por sí solo no basta para deduplicar este dataset: `9788420432793`
+figura en dos libros con títulos y autores diferentes. Por prudencia, ambos
+se mantienen, al igual que distintas ediciones del mismo título con ISBN
+diferentes. En caso de duda, conviene consultar con quien proporcionó los
+datos cuál es el registro correcto y cómo deben tratarse los duplicados. No
+se puede afirmar que estas inconsistencias sean deliberadas ni que la
+deduplicación sea un requisito explícito; es una decisión de interpretación.
 
 ### Fuente de datos
 
@@ -300,10 +334,12 @@ print(requests.get("http://localhost:8000/api.php", params={"texto": "Humo"}).js
 php tests/test.php
 ```
 
-Comprueban estructura de la respuesta, palabra exacta frente a subcadena, mayúsculas, dos últimos libros ordenados por `fecha_nov`, normalización de espacios en autores, casos sin resultados y rechazo de métodos distintos de GET.
+Comprueban estructura de la respuesta, palabra exacta frente a subcadena, mayúsculas, eliminación de duplicados, dos últimos libros ordenados por `fecha_nov`, normalización de espacios en autores, casos sin resultados y rechazo de métodos distintos de GET.
 
 ---
 
 ## Uso de IA
 
 He utilizado una herramienta de IA como asistente para ganar productividad, principalmente en la documentación (este README), los tests y los frontends de prueba. El planteamiento, las decisiones de diseño y la supervisión y validación del resultado son míos.
+
+Developed by [xarop.com](https://xarop.com).

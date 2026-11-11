@@ -1,4 +1,5 @@
 <?php
+// Developed by https://xarop.com
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 
@@ -34,8 +35,16 @@ if (!is_array($data)) {
 }
 
 if ($buscadas) {
-    $porAutor = [];
+    $unicos = [];
     foreach ($data as $libro) {
+        $clave = json_encode([trim($libro['isbn']), trim($libro['titulo']), trim($libro['autor'])]);
+        if (!isset($unicos[$clave]) || strcmp($libro['fecha_nov'], $unicos[$clave]['fecha_nov']) > 0) {
+            $unicos[$clave] = $libro;
+        }
+    }
+
+    $porAutor = [];
+    foreach ($unicos as $libro) {
         $porAutor[trim($libro['autor'])][] = $libro;
         if (coincide($buscadas, $libro['titulo'])) {
             $libros[] = $libro;

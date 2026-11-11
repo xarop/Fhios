@@ -1,4 +1,5 @@
 <?php
+// Developed by https://xarop.com
 $texto = trim($_GET['texto'] ?? '');
 $resultado = null;
 
@@ -32,6 +33,7 @@ input{flex:1;padding:.5rem}
 button{padding:.5rem 1rem}
 .libro{display:flex;gap:1rem;margin:.5rem 0;padding:.5rem;border:1px solid #ddd}
 .libro img{width:60px}
+footer{margin-top:2rem}
 </style>
 </head>
 <body>
@@ -57,5 +59,6 @@ button{padding:.5rem 1rem}
   <?php endforeach; ?>
   <?php if (!$resultado['autores']): ?><p>Sin resultados</p><?php endif; ?>
 <?php endif; ?>
+<footer>Developed by <a href="https://xarop.com" target="_blank" rel="noopener noreferrer">xarop.com</a></footer>
 </body>
 </html>
