@@ -7,7 +7,9 @@ Webservice en PHP que busca libros por título y autores por nombre sobre `datas
 | Fichero | Descripción |
 |---|---|
 | `api.php` | Webservice (devuelve JSON) |
-| `index.html` | Formulario para probar la API |
+| `index.html` | Frontend con JavaScript (`fetch` a la API) |
+| `sin-js.php` | Frontend sin JavaScript (formulario GET, render en servidor) |
+| `tests/test.php` | Tests |
 | `dataset.json` | Datos de libros (debe estar en el mismo directorio que `api.php`) |
 | `enunciado.docx` | Enunciado de la prueba |
 
@@ -21,7 +23,8 @@ PHP 7.0+ con la extensión `mbstring`.
 php -S localhost:8000
 ```
 
-- Frontend: <http://localhost:8000/>
+- Frontend con JS: <http://localhost:8000/>
+- Frontend sin JS: <http://localhost:8000/sin-js.php>
 - API: <http://localhost:8000/api.php?texto=Jorge+Franco>
 
 ## API
@@ -83,6 +86,8 @@ curl "http://localhost:8000/api.php?texto=Humo"
 ```
 
 ## Frontend
+
+`sin-js.php` hace lo mismo sin JavaScript: el formulario envía `texto` por GET y el HTML se genera en servidor reutilizando `api.php`.
 
 `index.html` es un formulario que llama a la API con `fetch`, y muestra la URL consultada, los libros, los autores con sus últimos libros y el JSON en bruto.
 
