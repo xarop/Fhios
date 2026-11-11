@@ -29,7 +29,7 @@ const libro = l => `<div class="libro"><img src="${esc(l.portada)}" alt=""><div>
 
 document.getElementById('f').addEventListener('submit', async e => {
   e.preventDefault();
-  const url = 'buscador.php?texto=' + encodeURIComponent(document.getElementById('texto').value);
+  const url = 'api.php?texto=' + encodeURIComponent(document.getElementById('texto').value);
   document.getElementById('url').textContent = 'GET ' + url;
   try {
     const r = await fetch(url);
