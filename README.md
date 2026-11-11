@@ -21,7 +21,16 @@ Contenido:
 | `tests/test.php` | Tests |
 | `enunciado.docx` | Enunciado |
 
-Requisitos: PHP 7.0+ con `mbstring`. Arranque rápido:
+## Requisitos
+
+El servidor necesita **PHP** (la API y `index.php` se ejecutan en el servidor).
+
+- **Versión mínima: PHP 7.0** (usa el operador `??`). Desarrollado y probado con PHP 8.5; compatible con 7.x y 8.x.
+- Extensiones: `mbstring`, `json` y `pcre` (habituales; `json` y `pcre` vienen de serie).
+- Los tests (`tests/test.php`) requieren PHP 7.1+.
+- `index.html` es estático y no necesita PHP, solo un navegador y acceso a la API.
+
+## Arranque rápido
 
 ```bash
 php -S localhost:8000
