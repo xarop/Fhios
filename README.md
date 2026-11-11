@@ -50,6 +50,21 @@ Decisiones de interpretación:
 - El dataset trae espacios sobrantes en algunos autores (`" Osho"`); se normalizan con `trim`.
 - Mayúsculas/minúsculas no influyen; las tildes sí (`Paraiso` ≠ `Paraíso`).
 
+### Fuente de datos
+
+Tal como pide el enunciado, los datos se leen de `dataset.json` (fichero estático). La lógica de búsqueda no depende de dónde vengan: el servicio solo necesita un array de libros con los campos `titulo`, `autor`, `isbn`, `fecha_nov` y `portada`. Por tanto, la misma API podría alimentarse de:
+
+- **Base de datos**: sustituir la lectura del JSON por una consulta (PDO) y delegar la búsqueda y la ordenación en SQL, por ejemplo:
+
+  ```sql
+  SELECT * FROM libros WHERE titulo LIKE :palabra;                    -- libros
+  SELECT * FROM libros WHERE autor = :autor ORDER BY fecha_nov DESC LIMIT 2;  -- últimos libros
+  ```
+
+- **Otra API**: obtener los libros con `file_get_contents` o cURL y aplicar el mismo filtrado.
+
+Con un dataset grande, la base de datos es preferible, porque evita cargar y recorrer todo el fichero en cada petición. El formato de la respuesta JSON no cambiaría.
+
 ---
 
 ## 2. Referencia de la API
