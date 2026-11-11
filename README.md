@@ -17,7 +17,7 @@ Contenido:
 | `api.php` | **Entregable del enunciado**: webservice PHP |
 | `dataset.json` | Datos (debe estar junto a `api.php`) |
 | `index.html` | Frontend con JavaScript |
-| `sin-js.php` | Frontend sin JavaScript |
+| `index.php` | Frontend sin JavaScript |
 | `tests/test.php` | Tests |
 | `enunciado.docx` | Enunciado |
 
@@ -104,8 +104,8 @@ curl "http://localhost:8000/api.php?texto=Jorge+Franco"
 
 Extras, no requeridos por el enunciado.
 
-- **Con JavaScript** – `index.html` (<http://localhost:8000/>): formulario que llama a la API con `fetch` y pinta libros, autores y el JSON en bruto. Es estático: puede abrirse desde cualquier servidor web.
-- **Sin JavaScript** – `sin-js.php` (<http://localhost:8000/sin-js.php>): formulario GET; el HTML se genera en servidor reutilizando `api.php`. Necesita PHP.
+- **Con JavaScript** – `index.html` (<http://localhost:8000/index.html>): formulario que llama a la API con `fetch` y pinta libros, autores y el JSON en bruto. Es estático: puede abrirse desde cualquier servidor web.
+- **Sin JavaScript** – `index.php` (<http://localhost:8000/>): formulario GET; el HTML se genera en servidor reutilizando `api.php`. Necesita PHP.
 
 ---
 
@@ -246,7 +246,7 @@ Versión completa en `index.html`.
 
 ### HTML sin JavaScript
 
-Basta un formulario GET apuntando a una página PHP que consuma la API (ver `sin-js.php`). Si solo se quiere ver el JSON, el formulario puede apuntar directamente a `api.php`:
+Basta un formulario GET apuntando a una página PHP que consuma la API (ver `index.php`). Si solo se quiere ver el JSON, el formulario puede apuntar directamente a `api.php`:
 
 ```html
 <form method="get" action="api.php">

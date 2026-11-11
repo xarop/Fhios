@@ -36,7 +36,7 @@ button{padding:.5rem 1rem}
 </head>
 <body>
 <h1>Buscador de libros</h1>
-<form method="get" action="sin-js.php">
+<form method="get" action="index.php">
   <input name="texto" value="<?= h($texto) ?>" placeholder="Título o autor" required autofocus>
   <button>Buscar</button>
 </form>
