@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Buscador de libros</title>
+<style>
+body{font-family:sans-serif;max-width:900px;margin:2rem auto;padding:0 1rem}
+form{display:flex;gap:.5rem}
+input{flex:1;padding:.5rem}
+button{padding:.5rem 1rem}
+.libro{display:flex;gap:1rem;margin:.5rem 0;padding:.5rem;border:1px solid #ddd}
+.libro img{width:60px}
+pre{background:#f4f4f4;padding:1rem;overflow:auto;max-height:300px}
+</style>
+</head>
+<body>
+<h1>Buscador de libros</h1>
+<form id="f">
+  <input id="texto" name="texto" placeholder="Título o autor" required autofocus>
+  <button>Buscar</button>
+</form>
+<p id="url"></p>
+<div id="res"></div>
+<h3>JSON</h3>
+<pre id="json"></pre>
+<script>
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const libro = l => `<div class="libro"><img src="${esc(l.portada)}" alt=""><div><b>${esc(l.titulo)}</b><br>${esc(l.autor)}<br>ISBN ${esc(l.isbn)} · ${esc(l.fecha_nov)}</div></div>`;
+
+document.getElementById('f').addEventListener('submit', async e => {
+  e.preventDefault();
+  const url = 'buscador.php?texto=' + encodeURIComponent(document.getElementById('texto').value);
+  document.getElementById('url').textContent = 'GET ' + url;
+  try {
+    const r = await fetch(url);
+    const d = await r.json();
+    document.getElementById('json').textContent = JSON.stringify(d, null, 2);
+    document.getElementById('res').innerHTML = d.error ? `<p>${esc(d.error)}</p>` :
+      `<h2>Libros (${d.libros.length})</h2>${d.libros.map(libro).join('') || '<p>Sin resultados</p>'}
+       <h2>Autores (${d.autores.length})</h2>` +
+      (d.autores.map(a => `<h3>${esc(a.autor)}</h3>${a.ultimos_libros.map(libro).join('')}`).join('') || '<p>Sin resultados</p>');
+  } catch (err) {
+    document.getElementById('res').textContent = 'Error: ' + err.message;
+  }
+});
+</script>
+</body>
+</html>
