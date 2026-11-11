@@ -85,3 +85,11 @@ curl "http://localhost:8000/api.php?texto=Humo"
 ## Frontend
 
 `index.html` es un formulario que llama a la API con `fetch`, y muestra la URL consultada, los libros, los autores con sus últimos libros y el JSON en bruto.
+
+## Tests
+
+```bash
+php tests/test.php
+```
+
+Comprueba estructura de la respuesta, búsqueda por palabra exacta, mayúsculas, últimos libros del autor y casos sin resultados.
