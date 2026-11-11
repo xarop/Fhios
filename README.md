@@ -292,3 +292,9 @@ php tests/test.php
 ```
 
 Comprueban estructura de la respuesta, palabra exacta frente a subcadena, mayúsculas, dos últimos libros ordenados por `fecha_nov`, normalización de espacios en autores, casos sin resultados y rechazo de métodos distintos de GET.
+
+---
+
+## Uso de IA
+
+He utilizado una herramienta de IA como asistente para ganar productividad, principalmente en la documentación (este README), los tests y los frontends de prueba. El planteamiento, las decisiones de diseño y la supervisión y validación del resultado son míos.
