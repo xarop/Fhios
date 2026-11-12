@@ -1,68 +1,111 @@
 <?php
-// Developed by https://xarop.com
+declare(strict_types=1);
+
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, OPTIONS');
 
-if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'GET') {
+$method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+
+if ($method === 'OPTIONS') {
+    http_response_code(204);
+    exit;
+}
+
+if ($method !== 'GET') {
     http_response_code(405);
-    header('Allow: GET');
+    header('Allow: GET, OPTIONS');
     echo json_encode(['error' => 'Método no permitido']);
     exit;
 }
 
-function palabras($s)
+function palabras(string $s): array
 {
-    $s = mb_strtolower(trim((string)$s), 'UTF-8');
+    $s = mb_strtolower(trim($s), 'UTF-8');
+    if ($s === '') {
+        return [];
+    }
     preg_match_all('/[\p{L}\p{N}]+/u', $s, $m);
-    return $m[0];
+    return array_unique($m[0]); // Evita comparar paraules repetides a la cerca
 }
 
-// Coincide si todas las palabras buscadas aparecen exactas en el campo
-function coincide(array $buscadas, $campo)
+function coincide(array $buscadas, string $campo): bool
 {
-    return $buscadas && !array_diff($buscadas, palabras($campo));
+    return $buscadas !== [] && array_diff($buscadas, palabras($campo)) === [];
 }
 
-$buscadas = palabras($_GET['texto'] ?? '');
-$libros = [];
-$autores = [];
+// Limitem la longitud màxima de la cerca per evitar abusos (DoS)
+$textoRaw = substr((string)($_GET['texto'] ?? ''), 0, 200);
+$buscadas = palabras($textoRaw);
 
-$data = json_decode(file_get_contents(__DIR__ . '/dataset.json'), true);
-if (!is_array($data)) {
-    http_response_code(500);
-    echo json_encode(['error' => 'No se pudo leer dataset.json']);
+// Si no hi ha paraules vàlides, retornem de seguida sense ni llegir el fitxer
+if ($buscadas === []) {
+    echo json_encode(['libros' => [], 'autores' => []]);
     exit;
 }
 
-if ($buscadas) {
-    $unicos = [];
-    foreach ($data as $libro) {
-        $clave = json_encode([trim($libro['isbn']), trim($libro['titulo']), trim($libro['autor'])]);
-        if (!isset($unicos[$clave]) || strcmp($libro['fecha_nov'], $unicos[$clave]['fecha_nov']) > 0) {
-            $unicos[$clave] = $libro;
-        }
-    }
+$rutaDataset = __DIR__ . '/dataset.json';
+if (!is_readable($rutaDataset)) {
+    http_response_code(500);
+    echo json_encode(['error' => 'Dataset no disponible']);
+    exit;
+}
 
-    $porAutor = [];
-    foreach ($unicos as $libro) {
-        $porAutor[trim($libro['autor'])][] = $libro;
-        if (coincide($buscadas, $libro['titulo'])) {
-            $libros[] = $libro;
-        }
-    }
+$data = json_decode(file_get_contents($rutaDataset), true);
+if (!is_array($data)) {
+    http_response_code(500);
+    echo json_encode(['error' => 'Error de formato en dataset.json']);
+    exit;
+}
 
-    foreach ($porAutor as $nombre => $obras) {
-        if (!coincide($buscadas, $nombre)) {
-            continue;
-        }
-        usort($obras, function ($a, $b) {
-            return strcmp($b['fecha_nov'], $a['fecha_nov']);
-        });
-        $autores[] = [
-            'autor' => $nombre,
-            'ultimos_libros' => array_slice($obras, 0, 2),
-        ];
+$unicos = [];
+foreach ($data as $libro) {
+    if (!is_array($libro)) {
+        continue;
+    }
+    $isbn = trim((string)($libro['isbn'] ?? ''));
+    $titulo = trim((string)($libro['titulo'] ?? ''));
+    $autor = trim((string)($libro['autor'] ?? ''));
+    $fecha = (string)($libro['fecha_nov'] ?? '');
+
+    $clave = $isbn . "\0" . $titulo . "\0" . $autor;
+    if (!isset($unicos[$clave]) || strcmp($fecha, (string)($unicos[$clave]['fecha_nov'] ?? '')) > 0) {
+        $unicos[$clave] = $libro;
     }
 }
 
-echo json_encode(['libros' => $libros, 'autores' => $autores], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+$libros = [];
+$porAutor = [];
+
+foreach ($unicos as $libro) {
+    $autor = trim((string)($libro['autor'] ?? ''));
+    $titulo = (string)($libro['titulo'] ?? '');
+
+    if ($autor !== '') {
+        $porAutor[$autor][] = $libro;
+    }
+    if (count($libros) < 50 && coincide($buscadas, $titulo)) {
+        $libros[] = $libro;
+    }
+}
+
+$autores = [];
+foreach ($porAutor as $nombre => $obras) {
+    if (!coincide($buscadas, $nombre)) {
+        continue;
+    }
+    usort($obras, static fn($a, $b) => strcmp((string)($b['fecha_nov'] ?? ''), (string)($a['fecha_nov'] ?? '')));
+    $autores[] = [
+        'autor' => $nombre,
+        'ultimos_libros' => array_slice($obras, 0, 2),
+    ];
+    if (count($autores) >= 20) {
+        break;
+    }
+}
+
+header('Cache-Control: public, max-age=300');
+echo json_encode(
+    ['libros' => $libros, 'autores' => $autores],
+    JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+);
